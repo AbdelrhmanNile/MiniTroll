@@ -1,0 +1,14 @@
+keys[
+leaf color (yellow/white),
+leaf shape (wilted/normal),
+stem shape (thin/normal),
+stem color (red/white/normal),
+spikes status (dead/empty/normal),
+spikes color (white/normal),
+]
+
+rules[
+if {leaf color}=yellow and {stem shape}=thin and {spikes status}=dead then nitrogen deficiency,
+if {leaf shape}=wilted and {stem color}=red and {spikes status}=empty then leaf rust,
+if {leaf color}=white and {stem color}=white and {spikes color}=white then powedery mildew,
+]
