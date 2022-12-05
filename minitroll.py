@@ -40,7 +40,9 @@ class MiniTroll:
             .replace("]", "")
             .splitlines()
         )
-        return rules
+        if self._check_rule_syntax(rules):
+            return rules
+        return None
 
     def parse_rule(self, rule_text):
         condition = rule_text.split("if")[1].strip().split("then")[0].strip()
@@ -62,6 +64,8 @@ class MiniTroll:
                     con[i] = self.eval_logsym(c)
             return self.eval_logop(con, "or")
         elif " or " not in condition and " and " not in condition:
+            if "&" in condition or "|" in condition:
+                raise Exception("Invalid condition\n" + condition)
             return self.eval_arth(condition.format(**self.runtime_vars))
 
     def eval_logsym(self, con):
@@ -109,6 +113,7 @@ class MiniTroll:
         return self.logops[logop](result)
 
     def eval_arth(self, con):
+        print(con)
         lhs, op, rhs = con.split()
         if self.is_number(lhs) and self.is_number(rhs):
             lhs = float(lhs)
@@ -151,6 +156,24 @@ class MiniTroll:
             return True
         elif s == "false" or s == "False":
             return False
+
+    def _check_rule_syntax(self, rules):
+        for i, rule in enumerate(rules):
+            if "if" not in rule or "then" not in rule:
+                self._invalid_rule_error(i, rule)
+
+            if ("&" in rule or "|" in rule) and not ("and" in rule or "or" in rule):
+                self._invalid_rule_error(i, rule)
+
+            if (">" in rule or "<" in rule or "=" in rule) and not (
+                "and" in rule or "or" in rule
+            ):
+                self._invalid_rule_error(i, rule)
+        return True
+
+    def _invalid_rule_error(self, rule_index, rule):
+        print(f"[bold red]ERROR: Syntax Error in rule at index {rule_index}:\n\t{rule}")
+        exit()
 
     def inference(self):
         self.runtime_vars = {"_filler": True}
