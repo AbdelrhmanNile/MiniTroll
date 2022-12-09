@@ -2,18 +2,37 @@ from rich import print
 
 
 class MiniTroll:
-    def __init__(self, kb_file) -> None:
+    def __init__(self) -> None:
 
         self.arths = {"eq": self.eq, "gt": self.gt, "lt": self.lt}
         self.logops = {"or": self.OR, "and": self.AND}
-
-        self.kb_file = open(kb_file, "r").readlines()
+    def init(self, ts_file):
+        self.kb_file = open(ts_file, "r").readlines()
         self.kb_file = "".join(self.kb_file)
-
         self.keys, self.hints = self.parse_keys()
         self.rules = self.parse_rules()
+        
+    def run(self,runtime_vars):
+        if list(runtime_vars.keys())[0] != "_filler":
+            raise Exception("Runtime Error")
+        self.runtime_vars = runtime_vars
+        results = []
+        for i, rule in enumerate(self.rules):
+            res = self.parse_rule(rule)
+            res_key = list(res.keys())[0]
+            res_val = list(res.values())[0]
+            self.runtime_vars[res_key] = res_val
+            results.append(res)
+        self.reset()
+        return results   
+        
+    def reset(self):
+        self.kb_file = None
+        self.keys = None
+        self.hints = None
+        self.rules = None
+        self.runtime_vars = {"_filler": True}
 
-        self.inference()
 
     def parse_keys(self):
         kb_file = self.kb_file.split("]\n")
@@ -106,14 +125,10 @@ class MiniTroll:
                     result.append(
                         self.eval_logop(condition[i].format(**self.runtime_vars), "or")
                     )
-        print(logop, result)
-        if logop == "or":
-            for i in result:
-                print(type(i))
+        
         return self.logops[logop](result)
 
     def eval_arth(self, con):
-        print(con)
         lhs, op, rhs = con.split()
         if self.is_number(lhs) and self.is_number(rhs):
             lhs = float(lhs)
@@ -211,6 +226,3 @@ class MiniTroll:
 
         for i in results:
             print(i)
-
-
-es = MiniTroll("kb.trollscript")
