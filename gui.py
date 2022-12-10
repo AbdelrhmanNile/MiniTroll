@@ -10,7 +10,7 @@ def main():
     
     while True:
     
-        event, values = window.read(timeout=20)
+        event, values = window.read()
         
         
         if event == sg.WIN_CLOSED:

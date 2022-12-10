@@ -142,6 +142,23 @@ def edit_screen():
             )
 
 
+def run_popup(key, options: list):
+    r_layout = [
+        [sg.Text(f"{key}: "), sg.Combo(options, key="run_popup", size=(20, 1))],
+        [sg.Push(), sg.Button("Next", size=(10, 1))],
+    ]
+
+    rp_window = MTWindow(title=key, layout=r_layout, icon="Troll.ico", finalize=True)
+    while True:
+        event, values = rp_window.read(timeout=20)
+        if event == sg.WIN_CLOSED:
+            return
+        elif event == "Next":
+            val = values["run_popup"]
+            rp_window.close()
+            return val
+
+
 def run_screen():
 
     ts = popup_ts()
@@ -153,7 +170,7 @@ def run_screen():
     ins = ""
     for i, key in enumerate(list(mt.keys.keys())):
         while ins not in mt.hints[key]:
-            ins = sg.popup_get_text(f"options: {mt.hints[key]}", key, icon="Troll.ico")
+            ins = run_popup(key, mt.hints[key])
             if ins != None:
                 rt_v[key] = ins
         ins = ""
