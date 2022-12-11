@@ -142,6 +142,27 @@ def edit_screen():
             )
 
 
+
+def output_screen(true_keys: list):
+    texts_objects = []
+    for i in true_keys:
+        texts_objects.append([sg.Text(i,
+                justification="left",
+                font="Helvetica 15",
+            ), sg.Checkbox('',size=(20,1),default=True,disabled = True)])
+    
+    texts_objects.append([sg.Push(), sg.Button('Ok',size = (10,1))])
+
+    output_window = MTWindow(title='Output', layout=texts_objects, icon="Troll.ico", finalize=True)
+
+    while True:
+
+        event, values = output_window.read(timeout=20)
+        if event == sg.WIN_CLOSED or event == 'Ok':
+            output_window.close()
+            return
+
+
 def run_popup(key, options: list):
     r_layout = [
         [sg.Text(f"{key}: "), sg.Combo(options, key="run_popup", size=(20, 1))],
@@ -176,8 +197,15 @@ def run_screen():
         ins = ""
 
     infer_res = mt.run(rt_v)
+    true_outputs = []
     for i in infer_res:
-        sg.Print(i, do_not_reroute_stdout=False)
+        #sg.Print(i, do_not_reroute_stdout=False)
+        for key, value in i.items():
+            if value == True:
+                true_outputs.append(key)
+
+    output_screen(true_outputs)
+
 
 
 def write_trollscript(ts, path, filename):
